@@ -1,0 +1,62 @@
+name: iptables-firewall-lab
+
+topology:
+  nodes:
+    # Alpine Linux Firewall Router
+    router:
+      kind: linux
+      image: alpine:latest
+      binds:
+        - config/iptables.rules:/etc/ipbatles.rules
+      exec:
+        - apk add --no-cache iptables
+        - sysctl -w net.ipv4.ip_forward=1
+        - ip addr replace 10.1.1.1/24 dev eth1
+        - ip addr replace 192.168.10.1/24 dev eth2
+        - ip addr replace 172.16.1.1/24 dev eth3
+        - ip addr replace 172.16.1.2/24 dev eth4
+        - iptables-restore < /etc/iptables.rules
+
+    # LAN Client
+    lan-client:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - apk add --no-cache curl netcat-openbsd
+        - ip addr add 10.1.1.10/24 dev eth1
+        - ip route replace default via 10.1.1.1 dev eth1
+
+    # DMZ Web Server
+    dmz-server:
+      kind: linux
+      image: nginx:alpine
+      binds:
+        - config/index.html:/usr/share/nginx/html/index.html:ro
+      exec:
+        - ip addr add 192.168.10.10/24 dev eth1
+        - ip route replace default via 192.168.10.1 dev eth1
+      
+    # WAN External Client
+    wan-client:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - apk add --no-cache curl netcat-openbsd
+        - ip addr add 172.16.1.100/24 dev eth1
+        - ip route replace default via 172.16.1.1 dev eth1
+
+    # WAN Attacker / Blacklisted Host
+    wan-attacker:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - apk add --no-cache curl netcat-openbsd
+        - ip addr add 172.16.1.200/24 dev eth1
+        - ip route replace default via 172.16.1.2 dev eth1
+
+  links:
+    # TODO: Define interface connections between nodes matching the topology map
+    - endpoints: ["router:eth1", "lan-client:eth1"]
+    - endpoints: ["router:eth2", "dmz-server:eth1"]
+    - endpoints: ["router:eth3", "wan-client:eth1"]
+    - endpoints: ["router:eth4", "wan-attacker:eth1"]

@@ -1,0 +1,26 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# =======================================================
+# TODO: IMPLEMENT YOUR IPTABLES RULES BELOW
+# =======================================================
+
+# --- 1. ALLOW ESTABLISHED & RELATED TRAFFIC ---
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# --- 2. BLACKLIST / THREAT MITIGATION ---
+-A FORWARD -i eth4 -m state --state NEW -j DROP
+-A INPUT -i eth3 -p tcp --dport 22 -j DROP
+-A FORWARD -i eth3 -p tcp --dport 22 -j DROP
+
+# --- 3. LAN TO DMZ & WAN ACCESS ---
+-A FORWARD -i eth1 -o eth2 -m state --state NEW -j ACCEPT
+-A FORWARD -i eth1 -o eth3 -m state --state NEW -j ACCEPT
+
+# --- 4. WAN TO DMZ ACCESS ---
+-A FORWARD -i eth3 -o eth2 -m state --state NEW -j ACCEPT
+
+COMMIT
