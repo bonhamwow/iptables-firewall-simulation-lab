@@ -7,7 +7,7 @@ topology:
       kind: linux
       image: alpine:latest
       binds:
-        - config/iptables.rules:/etc/ipbatles.rules
+        - config/iptables.rules:/etc/iptables.rules
       exec:
         - apk add --no-cache iptables
         - sysctl -w net.ipv4.ip_forward=1
