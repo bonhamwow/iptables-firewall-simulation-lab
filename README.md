@@ -43,7 +43,7 @@ This lab was created inside Containerlabs and is meant to be run within Linux or
 ## Deploying the Lab
 Open Containerlabs and navigate to the downloaded YAML file, then run the following command:
 ```
-sudo containerlab deploy -t topology.clab.yml
+sudo containerlab deploy -t lab.clab.yml
 ```
 ## Testing the Firewall
 To test connections between networks, where activity from the Attacker should be automatically blocked and HTTP and HTTPS from external WAN clients is all that is allowed, run the following test commands in the WSL terminal to see that the firewall rules are properly set up:
@@ -75,5 +75,5 @@ To test connections between networks, where activity from the Attacker should be
 ## Destroying the Lab
 Once you've finished with the lab, run the following command to destroy and clean-up:
 ```
-sudo containerlab destroy -t topology.clab.yml
+sudo containerlab destroy -t lab.clab.yml
 ```
